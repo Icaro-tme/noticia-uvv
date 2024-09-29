@@ -44,7 +44,17 @@ class PostItem extends StatelessWidget {
             ],
           ),
           SizedBox(height: 10),
-          Image.network(imageUrl),
+          Container(
+            width: double.infinity, 
+            height: 200, 
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover, 
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset('assets/sol.jpg', fit: BoxFit.cover); 
+              },
+            ),
+          ),
           SizedBox(height: 10),
           Text(title),
           SizedBox(height: 10),

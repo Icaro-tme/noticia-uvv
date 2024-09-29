@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:noticia_app/components/header_comp.dart';
 import 'package:noticia_app/components/sidebar_comp.dart';
-import 'package:noticia_app/views/criar-conta-page.dart';
 import 'package:noticia_app/views/widget/post-item.dart';
 import 'package:noticia_app/settings.dart';
 
-class DashboardPage extends StatefulWidget {
-  DashboardPage({Key? key}) : super(key: key);
+class LikedPostsPage extends StatefulWidget {
+  LikedPostsPage({Key? key}) : super(key: key);
 
   @override
-  _DashboardPageState createState() => _DashboardPageState();
+  _LikedPostsPageState createState() => _LikedPostsPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _LikedPostsPageState extends State<LikedPostsPage> {
   List<dynamic> posts = [];
   final String userId = "66e744b86099e1a101cb4697"; // TESTE USUARIO LOGADO
   Dio dio = Dio();
@@ -23,17 +22,17 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    fetchPosts();
+    fetchLikedPosts();
   }
 
-  Future<void> fetchPosts() async {
-    final String url = "${Settings.apiNovaUrl}noticias";
+  Future<void> fetchLikedPosts() async {
+    final String url = "${Settings.apiNovaUrl}noticias/$userId/liked";
 
     try {
       dio.options.headers["content-type"] = 'application/json';
       dio.options.headers["accept"] = 'application/json';
-      print("Fetching posts from: $url");
-      
+      print("Fetching liked posts from: $url");
+
       final response = await dio.get(url);
 
       if (response.statusCode == 200) {
@@ -41,30 +40,10 @@ class _DashboardPageState extends State<DashboardPage> {
           posts = response.data;
         });
       } else {
-        throw Exception('Failed to load posts');
+        throw Exception('Failed to load liked posts');
       }
     } catch (e) {
-      print("Error fetching posts: $e");
-    }
-  }
-
-  Future<void> toggleLike(String postId) async {
-    final String url = "${Settings.apiNovaUrl}noticias/$postId/toggle-like/$userId";
-
-    try {
-      dio.options.headers["content-type"] = 'application/json';
-      dio.options.headers["accept"] = 'application/json';
-      print("Toggling like for post $postId by user $userId at: $url");
-
-      final response = await dio.patch(url);
-
-      if (response.statusCode == 200) {
-        fetchPosts(); 
-      } else {
-        throw Exception('Failed to toggle like');
-      }
-    } catch (e) {
-      print("Error toggling like: $e");
+      print("Error fetching liked posts: $e");
     }
   }
 
@@ -82,7 +61,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey, 
+      key: _scaffoldKey,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: HeaderComp(
@@ -120,8 +99,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   title: post['title'] ?? '',
                   url: post['URL'] ?? '',
                   likeCount: post['likeCount'] ?? 0,
-                  isLiked: post['likedBy'].contains(userId),
-                  onLikeToggle: () => toggleLike(post['_id']),
+                  isLiked: true, 
+                  onLikeToggle: () => {},
                 );
               },
             ),

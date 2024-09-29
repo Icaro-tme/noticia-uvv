@@ -5,7 +5,6 @@ import 'package:noticia_app/views/criar-conta-page.dart';
 import 'package:noticia_app/views/dashboard-page.dart';
 
 class LoginPage extends StatefulWidget {
-
   LoginPage({Key? key}) : super(key: key);
 
   @override
@@ -28,9 +27,12 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
-                child: Image.network("https://cdn-icons-png.flaticon.com/512/21/21601.png", width: 200,),
+                child: Image.network(
+                  "https://cdn-icons-png.flaticon.com/512/21/21601.png",
+                  width: 200,
+                ),
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -58,10 +60,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CriarContaPage()));
+                  Navigator.pushNamed(context, '/criarConta'); 
                 },
                 child: Text('Criar Conta'),
               ),
@@ -72,19 +71,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  logar() async{
-    var service = new LoginService();
+  logar() async {
+    var service = LoginService();
     var result = await service.login(emailController.text, passwordController.text);
-    if(result){
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DashboardPage()));
-    }else{
+    if (result) {
+      Navigator.pushReplacementNamed(context, '/dashboard'); 
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Usuário ou senha inválidos!')),
       );
     }
-
   }
 }
