@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 
 class PostItem extends StatelessWidget {
-  final String username;
+  final String portalName;
   final String imageUrl;
-  final String description;
-  final int likes;
-  final int comments;
+  final String title;
+  final String url;
+  final int likeCount;
+  final bool isLiked;
+  final VoidCallback onLikeToggle;
 
   PostItem({
-    required this.username,
+    required this.portalName,
     required this.imageUrl,
-    required this.description,
-    required this.likes,
-    required this.comments,
+    required this.title,
+    required this.url,
+    required this.likeCount,
+    required this.isLiked,
+    required this.onLikeToggle,
   });
 
   @override
@@ -25,33 +29,32 @@ class PostItem extends StatelessWidget {
           Row(
             children: [
               ClipOval(
-                child: Image.asset(imageUrl, width: 30, height: 30, fit: BoxFit.cover,),
+                child: Image.network(
+                  imageUrl,
+                  width: 30,
+                  height: 30,
+                  fit: BoxFit.cover,
+                ),
               ),
               SizedBox(width: 10),
               Text(
-                username,
+                portalName,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
           SizedBox(height: 10),
-          Image.asset(imageUrl),
+          Image.network(imageUrl),
           SizedBox(height: 10),
-          Text(description),
+          Text(title),
           SizedBox(height: 10),
           Row(
             children: [
               IconButton(
-                icon: Icon(Icons.favorite_border),
-                onPressed: () {},
+                icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
+                onPressed: onLikeToggle,
               ),
-              Text('$likes curtidas'),
-              SizedBox(width: 20),
-              IconButton(
-                icon: Icon(Icons.comment),
-                onPressed: () {},
-              ),
-              Text('$comments comentários'),
+              Text('$likeCount curtidas'),
             ],
           ),
           Divider(),

@@ -19,6 +19,8 @@ class LoginService extends ChangeNotifier {
     Dio dio = new Dio();
     dio.options.headers["content-type"] = 'application/json';
     dio.options.headers["accept"] = 'application/json';
+    print("Sending request to: $url");
+    print("Request data: $data");
     var result = await dio.post(url, data: data);
     var usuario = Usuario.fromJson(result.data);
     return usuario;

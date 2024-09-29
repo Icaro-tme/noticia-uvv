@@ -1,59 +1,94 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:noticia_app/views/criar-conta-page.dart';
+
 import 'package:noticia_app/views/widget/post-item.dart';
+import 'package:noticia_app/settings.dart';
 
 class DashboardPage extends StatefulWidget {
-
   DashboardPage({Key? key}) : super(key: key);
 
   @override
-  _DashboardPage createState() => _DashboardPage();
+  _DashboardPageState createState() => _DashboardPageState();
 }
 
-class _DashboardPage extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> {
+  List<dynamic> posts = [];
+  final String userId = "66e744b86099e1a101cb4697"; //TESTE USUARIO LOGADO
+  Dio dio = Dio();
 
-  final List<Map<String, dynamic>> posts = [
-    {
-      'username': 'john_doe',
-      'image': 'assets/sol.jpg', // Link de exemplo de imagem
-      'description': 'Lindo pôr do sol na praia!',
-      'likes': 120,
-      'comments': 15,
-    },
-    {
-      'username': 'anna_smith',
-      'image': 'assets/piza.jpg',
-      'description': 'A melhor pizza da cidade!',
-      'likes': 98,
-      'comments': 22,
-    },
-    {
-      'username': 'mike_jones',
-      'image': 'assets/montanha.jpg',
-      'description': 'Dia incrível nas montanhas.',
-      'likes': 200,
-      'comments': 40,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchPosts();
+  }
+
+  Future<void> fetchPosts() async {
+    final String url = "${Settings.apiNovaUrl}noticias";
+
+    try {
+      dio.options.headers["content-type"] = 'application/json';
+      dio.options.headers["accept"] = 'application/json';
+      print("Fetching posts from: $url");
+      
+      final response = await dio.get(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          posts = response.data;
+        });
+      } else {
+        throw Exception('Failed to load posts');
+      }
+    } catch (e) {
+      print("Error fetching posts: $e");
+    }
+  }
+
+  Future<void> toggleLike(String postId) async {
+    final String url = "${Settings.apiNovaUrl}noticias/$postId/toggle-like/$userId";
+
+    try {
+      dio.options.headers["content-type"] = 'application/json';
+      dio.options.headers["accept"] = 'application/json';
+      print("Toggling like for post $postId by user $userId at: $url");
+
+      final response = await dio.patch(url);
+
+      if (response.statusCode == 200) {
+        fetchPosts(); 
+      } else {
+        throw Exception('Failed to toggle like');
+      }
+    } catch (e) {
+      print("Error toggling like: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (context, index) {
-          final post = posts[index];
-          return PostItem(
-            username: post['username'],
-            imageUrl: post['image'],
-            description: post['description'],
-            likes: post['likes'],
-            comments: post['comments'],
-          );
-        },
+      appBar: AppBar(
+        title: Text('Dashboard'),
       ),
+      body: posts.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return PostItem(
+                  portalName: post['NomePortal'] ?? "Unknown",
+                  imageUrl: post['ImgURL'] ?? '',
+                  title: post['title'] ?? '',
+                  url: post['URL'] ?? '',
+                  likeCount: post['likeCount'] ?? 0,
+                  isLiked: post['likedBy'].contains(userId),
+                  onLikeToggle: () => toggleLike(post['_id']),
+                );
+              },
+            ),
     );
   }
-
 }
